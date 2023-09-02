@@ -1,0 +1,24 @@
+﻿<Application x:Class="QQChatRecordArchiveConverter.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:QQChatRecordArchiveConverter" 
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:s="https://github.com/canton7/Stylet"
+    xmlns:System="clr-namespace:System;assembly=System.Runtime">
+    <Application.Resources>
+        <s:ApplicationLoader>
+            <s:ApplicationLoader.Bootstrapper>
+                <local:Bootstrapper/>
+            </s:ApplicationLoader.Bootstrapper>
+            <s:ApplicationLoader.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Wpf.Ui;component/Styles/Theme/Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Wpf.Ui;component/Styles/Wpf.Ui.xaml" />
+            </s:ApplicationLoader.MergedDictionaries>
+            <System:Double x:Key="GlobalNormalFontSize">14</System:Double>
+            <FontFamily x:Key="HYRY">/Res/Font/HYRunYuan-75w.ttf#汉仪润圆-75W</FontFamily>
+            <FontFamily x:Key="HYWH">pack://application:,,,;/res/font/汉仪文黑-85w.ttf#汉仪文黑-85W</FontFamily>
+        </s:ApplicationLoader>
+    </Application.Resources>
+</Application>
