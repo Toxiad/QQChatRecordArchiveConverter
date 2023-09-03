@@ -11,9 +11,11 @@ namespace QQChatRecordArchiveConverter.CARC.Module
     [Table("DB_CONFIG_DB_TABLE_RECORDS")]
     public class DBRecord
     {
-        public DBRecord() { } 
+        public DBRecord() { }
+        [PrimaryKey]
+        public int ID { get; set; } = 1;
         public string DisplayName { get; set; }
-        public string TableName { get; set; }
+        public string TableName { get; set; } = null;
         public int TotalSize { get; set; } = 0;
         public DateTime CreateTime { get; set; } = DateTime.Now; 
         public DateTime UpdateTime { get; set; } = DateTime.Now;

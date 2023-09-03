@@ -11,10 +11,10 @@
                 <local:Bootstrapper/>
             </s:ApplicationLoader.Bootstrapper>
             <s:ApplicationLoader.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Wpf.Ui;component/Styles/Theme/Light.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Wpf.Ui;component/Styles/Wpf.Ui.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
             </s:ApplicationLoader.MergedDictionaries>
             <System:Double x:Key="GlobalNormalFontSize">14</System:Double>
             <FontFamily x:Key="HYRY">/Res/Font/HYRunYuan-75w.ttf#汉仪润圆-75W</FontFamily>

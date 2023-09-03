@@ -14,6 +14,7 @@
         x:Class="QQChatRecordArchiveConverter.Pages.MainView"
         d:Background="{DynamicResource ApplicationBackgroundBrush}"
         Title="QQCRAC" Height="680" Width="1100" WindowStartupLocation="CenterScreen"
+        
         MinHeight="600" MinWidth="800" FontSize="14" TextOptions.TextRenderingMode="Grayscale" TextOptions.TextHintingMode="Animated" TextOptions.TextFormattingMode="Ideal">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -30,58 +31,69 @@
                 <RowDefinition Height="80"/>
             </Grid.RowDefinitions>
             <hc:SimplePanel Background="{DynamicResource SmokeFillColorDefaultBrush}">
-                <Border BorderThickness="10,0,0,0" BorderBrush="{DynamicResource PaletteAmberBrush}">
+                <hc:SimpleStackPanel Grid.Row="0" Height="60" Orientation="Horizontal">
+                    <Border Background="#FFEAC452" Width="15">
+                        <Border Background="{DynamicResource PaletteAmberBrush}" Width="11" Margin="2"/>
+                    </Border>
+                    <hc:SimpleStackPanel Grid.Row="0" Height="60" Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ScreenSearch24" Margin="20,0,0,0" Foreground="{DynamicResource TextFillColorLightPrimaryBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontSize="28"/>
+                        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="筛选记录" VerticalAlignment="Center" FontSize="20" Margin="16,0,0,0" FontWeight="Bold" Cursor="" Foreground="{DynamicResource TextFillColorLightPrimaryBrush}"/>
+                    </hc:SimpleStackPanel>
+                </hc:SimpleStackPanel>
+                <Border BorderBrush="{DynamicResource PaletteAmberBrush}">
                     <Border.Background>
-                        <LinearGradientBrush EndPoint="0.3,0.5" StartPoint="0,0" SpreadMethod="Pad">
+                        <LinearGradientBrush EndPoint="0.5,0.9" StartPoint="0,0" SpreadMethod="Pad">
                             <GradientStop Color="#33FFC107"/>
                             <GradientStop Color="#00FFC107" Offset="1"/>
                         </LinearGradientBrush>
                     </Border.Background>
+                    <Border BorderThickness="1" BorderBrush="#66FFF3D1" Margin="15,0,0,0"/>
                 </Border>
-                <hc:SimpleStackPanel Grid.Row="0" Height="60" Orientation="Horizontal">
-                    <ui:SymbolIcon Symbol="ScreenSearch24" Margin="20,0,0,0" Foreground="{DynamicResource TextFillColorLightPrimaryBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontSize="28"/>
-                    <TextBlock x:Name="textBlock" HorizontalAlignment="Center" TextWrapping="Wrap" Text="筛选记录" VerticalAlignment="Center" FontSize="20" Margin="16,0,0,0" FontWeight="Bold" Cursor="" Foreground="{DynamicResource TextFillColorLightPrimaryBrush}"/>
-                </hc:SimpleStackPanel>
                 <ui:SymbolIcon Symbol="ScreenSearch24" Margin="20,0,0,0" Foreground="#19FFFFFF" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontSize="72"/>
             </hc:SimplePanel>
             <hc:SimpleStackPanel Grid.Row="1" Cursor="" >
                 <hc:SimpleStackPanel Margin="10,10,10,0">
                     <TextBlock Margin="10,0,0,5" Foreground="{DynamicResource TextFillColorLightSecondaryBrush}"><Run Text="开始时间"/></TextBlock>
-                    <hc:DatePicker hc:BorderElement.CornerRadius="15"/>
+                    <hc:DateTimePicker hc:BorderElement.CornerRadius="15" SelectedDateTime="{Binding SearchParamStartTime}" SelectionBrush="#FFE2C963" Padding="14,6,14,6"/>
                 </hc:SimpleStackPanel>
                 <hc:SimpleStackPanel Margin="10,10,10,0">
                     <TextBlock Margin="10,0,0,5" Foreground="{DynamicResource TextFillColorLightSecondaryBrush}"><Run Text="结束时间"/></TextBlock>
-                    <hc:DatePicker hc:BorderElement.CornerRadius="15"/>
+                    <hc:DateTimePicker hc:BorderElement.CornerRadius="15" SelectedDateTime="{Binding SearchParamEndTime}" SelectionBrush="#FFE2C963" Padding="14,6,14,6"/>
                 </hc:SimpleStackPanel>
                 <hc:SimpleStackPanel Margin="10,10,10,0">
                     <TextBlock Margin="10,0,0,5" Foreground="{DynamicResource TextFillColorLightSecondaryBrush}"><Run Text="发送者"/></TextBlock>
-                    <hc:TextBox hc:BorderElement.CornerRadius="15"/>
+                    <hc:TextBox hc:BorderElement.CornerRadius="15" Text="{Binding SearchParamSender}" SelectionBrush="#FFE2C963" Padding="14,6,14,6"/>
                 </hc:SimpleStackPanel>
                 <hc:SimpleStackPanel Margin="10,10,10,24" Cursor="">
                     <TextBlock Margin="10,0,0,5" Foreground="{DynamicResource TextFillColorLightSecondaryBrush}"><Run Text="内容"/></TextBlock>
-                    <hc:TextBox hc:BorderElement.CornerRadius="15"/>
+                    <hc:TextBox hc:BorderElement.CornerRadius="15" Text="{Binding SearchParamContent}" SelectionBrush="#FFE2C963" Padding="14,6,14,6"/>
                 </hc:SimpleStackPanel>
-                <Button Margin="10,10" HorizontalAlignment="Stretch" Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15">
+                <ToggleButton Margin="10,4,10,10" HorizontalAlignment="Stretch" Style="{StaticResource ToggleButtonLoading}" hc:BorderElement.CornerRadius="15" Click="{s:Action Search}" IsChecked="{Binding IsSearching, Mode=OneWay}" IsEnabled="{Binding IsSearchable}">
                     <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="Search24" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
                         <TextBlock Text="搜索" FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
                     </hc:SimpleStackPanel>
-                </Button>
+                </ToggleButton>
                 <hc:Divider Margin="10,10,10,10" />
-                <Button Margin="10,10" HorizontalAlignment="Stretch" Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15">
+                <Button Margin="10,10" HorizontalAlignment="Stretch" Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15" Click="{s:Action Import}">
                     <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="AddSquareMultiple16" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
-                        <TextBlock Text="导入"  FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock Text="导入" FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
                     </hc:SimpleStackPanel>
                 </Button>
-                <Button Margin="10,10" HorizontalAlignment="Stretch" Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15">
+                <Button Margin="10,10" HorizontalAlignment="Stretch" Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15" Click="{s:Action Export}">
                     <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="SaveArrowRight20" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
                         <TextBlock Text="将结果导出为HTML"  FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
                     </hc:SimpleStackPanel>
                 </Button>
-
             </hc:SimpleStackPanel>
+            <Border Grid.Row="1" Margin="10" VerticalAlignment="Bottom" CornerRadius="5" Background="#FFEAE2C1" Visibility="{Binding LoadingBoxView}">
+                <hc:SimpleStackPanel Margin="5" Orientation="Horizontal">
+                    <hc:CircleProgressBar IsIndeterminate="True" Margin="5,0,0,0" Width="20" Height="20" ArcThickness="2" Style="{DynamicResource ProgressBarCircleBaseStyle}" Background="{x:Null}" Foreground="#FF64530E"/>
+                    <TextBlock Margin="10,0,0,0" Foreground="#FF64530E" Text="{Binding CurAction}"/>
+                </hc:SimpleStackPanel>
+            </Border>
             <hc:SimplePanel Grid.Row="2" Background="{DynamicResource SmokeFillColorDefaultBrush}">
                 <hc:SimpleStackPanel Orientation="Horizontal">
                     <hc:Gravatar HorizontalAlignment="Left" Margin="15,0,0,0" VerticalAlignment="Center" Style="{DynamicResource GravatarCircle}" BorderBrush="White" BorderThickness="3" Width="60" Height="60" >
@@ -101,7 +113,7 @@
                     </hc:Gravatar>
                     <hc:SimpleStackPanel Margin="15,0,0,0" VerticalAlignment="Center">
                         <TextBlock d:Text="鸥巴克" Text="{Binding ObjectName}" FontSize="18" Foreground="{DynamicResource TextFillColorLightPrimaryBrush}"/>
-                        <TextBlock Foreground="{DynamicResource TextFillColorLightTertiaryBrush}" Margin="0,5,0,0">共<Run d:Text="233" Text="{Binding TotalRecordCount}"/>条，资源<Run d:Text="233GB" Text="{Binding TotalSize}"/></TextBlock>
+                        <TextBlock Foreground="{DynamicResource TextFillColorLightTertiaryBrush}" Margin="0,5,0,0">共<Run d:Text="233" Text="{Binding TotalRecordCount}"/>条，资源<Run d:Text="233GB" Text="{Binding AssestSize}"/></TextBlock>
                     </hc:SimpleStackPanel>
                 </hc:SimpleStackPanel>
             </hc:SimplePanel>
@@ -111,13 +123,34 @@
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Border CornerRadius="5" ClipToBounds="True">
-                <StackPanel Margin="10,10,10,0" />
+            <Border Margin="10,10,10,0" CornerRadius="5" Background="#FF1F2233" >
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="11" ShadowDepth="0" Opacity="0.2"/>
+                </Border.Effect>
+                <StackPanel Margin="5,0,5,0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <hc:Pagination MaxPageCount="{Binding PageCount}" PageIndex="{Binding PageIndex, Mode=TwoWay}" IsJumpEnabled="True" d:MaxPageCount="100" VerticalAlignment="Center" MaxPageInterval="4">
+                        <hc:Interaction.Triggers>
+                            <hc:EventTrigger EventName="PageUpdated">
+                                <hc:EventToCommand Command="{s:Action PageUpdated}" PassEventArgsToCommand="True" />
+                            </hc:EventTrigger>
+                        </hc:Interaction.Triggers>
+                    </hc:Pagination>
+                    <TextBlock Text="{Binding PageRealSize}" Foreground="White" VerticalAlignment="Center" Padding="10,0,0,0"/>
+                    <TextBlock Text="/" Foreground="#99FFFFFF" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding PageSize}" Foreground="#99FFFFFF" VerticalAlignment="Center"/>
+                </StackPanel>
             </Border>
-            <ListBox Grid.Row="1" VirtualizingPanel.IsVirtualizing="True">
+            <ListBox Grid.Row="1" 
+                     ScrollViewer.CanContentScroll="True" 
+                     VirtualizingPanel.IsVirtualizingWhenGrouping="True" 
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.ScrollUnit="Item"
+                     VirtualizingPanel.IsContainerVirtualizable="True" 
+                     VirtualizingPanel.VirtualizationMode="Recycling" 
+                     ItemsSource="{Binding Messages}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <hc:SimpleStackPanel Margin="0,0,0,-10" >
+                        <hc:SimpleStackPanel Margin="0,5,0,5">
                             <hc:SimpleStackPanel.Triggers>
                                 <EventTrigger RoutedEvent="UIElement.MouseEnter">
                                     <BeginStoryboard>
@@ -136,9 +169,15 @@
                             </hc:SimpleStackPanel.Triggers>
                             <hc:SimpleStackPanel Orientation="Horizontal">
                                 <TextBlock Margin="20,0,0,0" Foreground="{DynamicResource TextFillColorDarkSecondaryBrush}"><Run Text="{Binding Sender}"/></TextBlock>
-                                <TextBlock x:Name="SendoutTime" Margin="10,0,0,0" Foreground="{DynamicResource TextFillColorDarkDisabledBrush}" d:Opacity="1" Opacity="0"><Run Text="发送时间 "/><Run Text="{Binding SendTime, StringFormat='{}{0:yyyy-MM-dd hh\\:mm\\:ss}'}"/></TextBlock>
+                                <TextBlock x:Name="SendoutTime" Margin="10,0,0,0" Foreground="{DynamicResource TextFillColorDarkDisabledBrush}" d:Opacity="1" Opacity="0"><Run Text="发送时间 "/><Run Text="{Binding SendTime, StringFormat='{}{0:yyyy-MM-dd HH\\:mm\\:ss}'}"/></TextBlock>
                             </hc:SimpleStackPanel>
-                            <hc:ChatBubble Role="Receiver"  SelfManage="True" Margin="10,5,10,0" Content="{Binding Content}" Background="{DynamicResource PaletteLightBlueBrush}" Foreground="{DynamicResource TextFillColorDarkInverseBrush}" />
+                            <hc:ChatBubble Role="Receiver" FontSize="14" SelfManage="True" Margin="10,5,10,0" Content="{Binding Content}" Background="#FF1F2233" Foreground="{DynamicResource TextFillColorDarkInverseBrush}">
+                                <!--<hc:ChatBubble.ContextMenu>-->
+                                <!--<ContextMenu ItemsSource="{Binding MenuList}">-->
+                                <!--        <TextBlock Text="{Binding MenuItem}" />-->
+                                <!--   </ContextMenu>-->
+                                <!--</hc:ChatBubble.ContextMenu>-->
+                            </hc:ChatBubble>
                         </hc:SimpleStackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

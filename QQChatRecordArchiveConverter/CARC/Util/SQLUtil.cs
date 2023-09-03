@@ -31,6 +31,10 @@ namespace QQChatRecordArchiveConverter.CARC.Util
             _db = new SQLiteConnection(sqlPath + "MainDB.db");
             _db.CreateTable<DBRecord>();
             _db.CreateTable<Message>();
+            if (_db.Table<DBRecord>().Count() == 0)
+            {
+                _db.Insert(new DBRecord());
+            }
         }
     }
 }
