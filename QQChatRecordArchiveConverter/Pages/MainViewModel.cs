@@ -14,6 +14,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Resources;
 using System.Windows.Shapes;
 
 namespace QQChatRecordArchiveConverter.Pages
@@ -22,61 +25,67 @@ namespace QQChatRecordArchiveConverter.Pages
     {
         public ObservableCollection<Message> Messages { get; set; } = new();
         public List<Message> TotalMessages { get; set; } = new(); 
-        public DateTime SearchParamStartTime { get; set; } = DateTime.Today;
+        public DateTime SearchParamStartTime { get; set; } = DateTime.Today.AddDays(-6);
         public DateTime SearchParamEndTime { get; set; } = DateTime.Today.Add(new TimeSpan(23, 59, 59));
         public string SearchParamSender { get; set; } = string.Empty;
         public string SearchParamContent { get; set; } = string.Empty;
+        public ImageSource GroupAvatar { get; set; } = null;
         public int TotalRecordCount { get; set; } = 0;
         public int PageIndex { get; set; } = 1; 
         public int PageCount { get; set; } = 1;
         public int PageRealSize { get; set; } = 0;
         public int PageSize { get; set; } = 200;
-        public string AssestSize { get; set; } = "0 K"; 
+        public string AssestSize { get; set; } = "0 B"; 
         public string ObjectName { get; set; } = "NAME";
         public bool IsSearchable { get; set; } = true;
         public bool IsSearching { get { return !IsSearchable; } }
         public string CurAction { get; set; } = "";
+        public DateTime RealStartTime { get; set; } = DateTime.Today;
+        public DateTime RealEndTime { get; set; } = DateTime.Today;
         public Visibility LoadingBoxView { get; set; } = Visibility.Collapsed;
 
         public MainViewModel()
         {
+            var DBInfo = SQLUtil.Instance.DB.Table<DBRecord>().First();
+            Uri DefaultFont = new ("Res\\Font\\HYRunYuan-75W.ttf", UriKind.Relative); 
+            Uri DefaultImg = new("Res\\otulogo@2x1231.png", UriKind.Relative); 
+            GroupAvatar = new BitmapImage(DefaultImg);
+
             TotalRecordCount = SQLUtil.Instance.DB.Table<Message>().Count();
-            ObjectName = SQLUtil.Instance.DB.Table<DBRecord>().First().DisplayName;
+            ObjectName = DBInfo.DisplayName;
+            AssestSize = "计算中";
             Task.Factory.StartNew(() =>
             {
                 AssestSize = Util.SizeParse(Util.GetDirectorySize("AssestOutput"));
             });
-            AssestSize = "计算中";
         }
         public void Search()
         {
-            //var query = from message in SQLUtil.Instance.DB.Table<Message>()
-            //where message.Sender.Contains(SearchParamSender)
-            //&& message.Content.Contains(SearchParamContent)
-            //&& message.SendTime > SearchParamStartTime
-            //&& message.SendTime < SearchParamEndTime
-            //orderby message.SendTime
-            //select message;
             Task.Factory.StartNew(() =>
             {
                 IsSearchable = false;
-                LoadingBoxView = Visibility.Visible;
-                CurAction = $"获取数据...";
+                //CurAction = $"获取数据...";
                 TotalMessages = SQLUtil.Instance.DB.Table<Message>()
                     .Where(message => message.SendTime > SearchParamStartTime)
                     .Where(message => message.SendTime < SearchParamEndTime)
-                    .Where(message => message.Sender.Contains(SearchParamSender))
+                    .Where(message => message.SenderStr.Contains(SearchParamSender))
                     .Where(message => message.Content.Contains(SearchParamContent))
-                    .ToList();
-                CurAction = $"装载数据...";
+                    .OrderBy(m=>m.SendTime).ToList();
+                //CurAction = $"装载数据...";
+                // 装载Pagesize条数据到渲染List
                 var tempOC = new ObservableCollection<Message>(TotalMessages.Take(PageSize));
-                CurAction = $"渲染...";
-                PageIndex = 1;
-                PageCount = (int)Math.Ceiling(TotalMessages.Count / (double)PageSize);
+                if (TotalMessages.Count > 0)
+                {
+                    RealStartTime = TotalMessages.First().SendTime;
+                    RealEndTime = TotalMessages.Last().SendTime;
+                }
+                PageIndex = 1; //重置页码计数器
+                PageCount = (int)Math.Ceiling(TotalMessages.Count / (double)PageSize); //计算总页数
+                //CurAction = $"渲染...";
+                //将Message替换为新的数据列，渲染
                 Messages = tempOC;
+                //刷新页面当前条数
                 PageRealSize = Messages.Count();
-                //Messages = new List<Message>(query);
-                LoadingBoxView = Visibility.Collapsed;
                 IsSearchable = true;
             }, TaskCreationOptions.LongRunning);
         }
@@ -85,8 +94,11 @@ namespace QQChatRecordArchiveConverter.Pages
             Task.Factory.StartNew(() =>
             { 
                 IsSearchable = false;
+                // 从TotalMessage缓存中拉取渲染数据
                 var tempOC = new ObservableCollection<Message>(TotalMessages.Skip((info.Info - 1) * PageSize).Take(PageSize));
+                // 渲染
                 Messages = tempOC;
+                //刷新页面当前条数
                 PageRealSize = Messages.Count();
                 IsSearchable = true;
             });
@@ -127,7 +139,7 @@ namespace QQChatRecordArchiveConverter.Pages
                         }
                         if (e.desc == "totalsame" && e.percent > 0)
                         {
-                            MessageBox.Show($"本次导入跳过{e.percent}个相同消息");
+                            MessageBox.Show($"本次导入跳过{e.percent}个相同消息，详细列表保存在 AssestOutput 目录下。");
                         }
                     };
                     mh.DoConvert(fn, false);
@@ -136,37 +148,20 @@ namespace QQChatRecordArchiveConverter.Pages
                     mh = null;
                     TotalRecordCount = SQLUtil.Instance.DB.Table<Message>().Count();
                     ObjectName = SQLUtil.Instance.DB.Table<DBRecord>().First().DisplayName;
-                    AssestSize = Util.SizeParse(Util.GetDirectorySize("AssestOutput"));
+
+                    var inf = SQLUtil.Instance.DB.Table<DBRecord>().First();
+                    var totalSize = Util.GetDirectorySize("AssestOutput");
+                    if (inf.DisplayName == null) inf.TotalSize = totalSize;
+                    SQLUtil.Instance.DB.Update(inf);
+                    AssestSize = Util.SizeParse(totalSize);
                 });
             }
         }
+        HTMLHelper hh = null;
         public void Export() 
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Title = "导入QQ聊天记录";
-            saveFileDialog.Filter = "聊天记录文件 (*.html)|*.html";
-            saveFileDialog.RestoreDirectory = true;
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                var fn = saveFileDialog.FileName;
-                Task.Factory.StartNew(() => {
-                    string HtmlHeadString = @"<html xmlns=""http://www.w3.org/1999/xhtml"">"
-                                                       + @"<head>"
-                                                       + @"<meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"" />"
-                                                       + @"<title>QQ Message</title>"
-                                                       + @"<style type=""text/css"">"
-                                                       + @"body{font-size:12px; line-height:22px; margin:2px;}td{font-size:12px; line-height:22px;}"
-                                                       + @"</style>"
-                                                       + @"</head>"
-                                                       + @"<body>";
-                    string HtmlEndString = @"</body></html>";
-                    File.AppendAllText(fn, HtmlHeadString, Encoding.UTF8);
-                    foreach (var m in TotalMessages) {
-                        File.AppendAllText(fn, $"<div class='messages {m.SenderType}'><div class='infobox'><span class='sender'>{WebUtility.HtmlEncode(m.Sender)}</span><span class='sendtime'>{m.SendTime:yyyy-MM-dd HH-mm-ss}</span></div><span class='message-content'>{m.OriginMessage}</span></div>\n", Encoding.UTF8);
-                    }
-                    File.AppendAllText(fn, HtmlEndString, Encoding.UTF8);
-                });
-            }
+            hh = new HTMLHelper();
+            hh.Export(TotalMessages, RealStartTime, RealEndTime, ObjectName);
         }
     }
 }

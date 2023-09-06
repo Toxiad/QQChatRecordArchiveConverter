@@ -15,13 +15,13 @@
         d:Background="{DynamicResource ApplicationBackgroundBrush}"
         Title="QQCRAC" Height="680" Width="1100" WindowStartupLocation="CenterScreen"
         
-        MinHeight="600" MinWidth="800" FontSize="14" TextOptions.TextRenderingMode="Grayscale" TextOptions.TextHintingMode="Animated" TextOptions.TextFormattingMode="Ideal">
+        MinHeight="600" MinWidth="800" FontSize="14" TextOptions.TextRenderingMode="Grayscale" TextOptions.TextHintingMode="Animated" TextOptions.TextFormattingMode="Ideal" FontFamily="{DynamicResource HYRY}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Background="#FF1F2233" Grid.RowSpan="2">
+        <Grid Grid.Column="0" Grid.RowSpan="2" Background="#FF1F2233">
             <Grid.Effect>
                 <DropShadowEffect RenderingBias="Quality" Direction="0" ShadowDepth="0" BlurRadius="18" Opacity="0.2"/>
             </Grid.Effect>
@@ -37,7 +37,7 @@
                     </Border>
                     <hc:SimpleStackPanel Grid.Row="0" Height="60" Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="ScreenSearch24" Margin="20,0,0,0" Foreground="{DynamicResource TextFillColorLightPrimaryBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontSize="28"/>
-                        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="筛选记录" VerticalAlignment="Center" FontSize="20" Margin="16,0,0,0" FontWeight="Bold" Cursor="" Foreground="{DynamicResource TextFillColorLightPrimaryBrush}"/>
+                        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="筛选记录" VerticalAlignment="Center" FontSize="20" Margin="16,0,0,0" Cursor="" Foreground="{DynamicResource TextFillColorLightPrimaryBrush}"/>
                     </hc:SimpleStackPanel>
                 </hc:SimpleStackPanel>
                 <Border BorderBrush="{DynamicResource PaletteAmberBrush}">
@@ -98,7 +98,7 @@
                 <hc:SimpleStackPanel Orientation="Horizontal">
                     <hc:Gravatar HorizontalAlignment="Left" Margin="15,0,0,0" VerticalAlignment="Center" Style="{DynamicResource GravatarCircle}" BorderBrush="White" BorderThickness="3" Width="60" Height="60" >
                         <hc:Gravatar.Background>
-                            <ImageBrush ImageSource="/Res/otulogo@2x1231.png" Stretch="UniformToFill" TileMode="None">
+                            <ImageBrush ImageSource="/Res/otulogo@100p.png" Stretch="UniformToFill" TileMode="None" RenderOptions.BitmapScalingMode="HighQuality">
                                 <ImageBrush.RelativeTransform>
                                     <TransformGroup>
                                         <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -168,8 +168,8 @@
                                 </EventTrigger>
                             </hc:SimpleStackPanel.Triggers>
                             <hc:SimpleStackPanel Orientation="Horizontal">
-                                <TextBlock Margin="20,0,0,0" Foreground="{DynamicResource TextFillColorDarkSecondaryBrush}"><Run Text="{Binding Sender}"/></TextBlock>
-                                <TextBlock x:Name="SendoutTime" Margin="10,0,0,0" Foreground="{DynamicResource TextFillColorDarkDisabledBrush}" d:Opacity="1" Opacity="0"><Run Text="发送时间 "/><Run Text="{Binding SendTime, StringFormat='{}{0:yyyy-MM-dd HH\\:mm\\:ss}'}"/></TextBlock>
+                                <TextBlock Margin="20,0,0,0" Foreground="{DynamicResource TextFillColorDarkSecondaryBrush}"><Run Text="{Binding SenderName}"/></TextBlock>
+                                <TextBlock x:Name="SendoutTime" Margin="10,0,0,0" Foreground="{DynamicResource TextFillColorDarkDisabledBrush}" d:Opacity="1" Opacity="0">(<Run Text="{Binding SenderId}"/>)<Run Text="  发送时间 "/><Run Text="{Binding SendTime, StringFormat='{}{0:yyyy-MM-dd HH\\:mm\\:ss}'}"/></TextBlock>
                             </hc:SimpleStackPanel>
                             <hc:ChatBubble Role="Receiver" FontSize="14" SelfManage="True" Margin="10,5,10,0" Content="{Binding Content}" Background="#FF1F2233" Foreground="{DynamicResource TextFillColorDarkInverseBrush}">
                                 <!--<hc:ChatBubble.ContextMenu>-->
@@ -182,8 +182,8 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
                 <d:ListBox.Items>
-                    <Module:Message Sender="朶茜雅" Content="吃我大吉吉"/>
-                    <Module:Message Sender="朶茜雅的LP" Content="吃你妈的头，林北真的会气死"/>
+                    <Module:Message SenderName="朶茜雅" SenderId="100001" Content="吃我大吉吉"/>
+                    <Module:Message SenderName="朶茜雅的LP" SenderId="100002" Content="吃你妈的头，林北真的会气死"/>
                 </d:ListBox.Items>
             </ListBox>
         </Grid>

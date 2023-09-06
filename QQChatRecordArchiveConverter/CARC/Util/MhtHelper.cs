@@ -1,4 +1,5 @@
-﻿using QQChatRecordArchiveConverter.CARC.Module;
+﻿using Microsoft.VisualBasic;
+using QQChatRecordArchiveConverter.CARC.Module;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -10,7 +11,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Security.Cryptography;
 using System.Xml;
+using System.Windows.Markup;
+using Stylet;
 
 namespace QQChatRecordArchiveConverter.CARC.Util
 {
@@ -26,7 +30,7 @@ namespace QQChatRecordArchiveConverter.CARC.Util
         }
         public delegate void ProcessStatusHandler(ProcessStatus status);
         public event ProcessStatusHandler StatusChanged;
-        public const string HtmlEndString = @"</table>\n</body>\n</html>";
+        public const string HtmlEndString = @"</html>";
         //生成HTML的正文,第二步进行
         public bool IsGetHtml = false;
 
@@ -37,9 +41,9 @@ namespace QQChatRecordArchiveConverter.CARC.Util
         //保存图片ID和后缀的对应关系
         public Dictionary<string, string> ImgDictionary = new Dictionary<string, string>();
 
-        public string OutputPath = "AssestOutput";
+        public string OutputPath = "AssestOutput/";
 
-        public string ImgDirName = "/Sources";
+        public string ImgDirName = "Sources";
         public void Stop()
         {
             IsStop = true;
@@ -85,8 +89,8 @@ namespace QQChatRecordArchiveConverter.CARC.Util
                 if (File.Exists(OutputPath + "ImgDictionary.txt"))
                 {
                     blDicExist = true;
-                    FileStream fsTmp = new FileStream(OutputPath + "ImgDictionary.txt", FileMode.Open);
-                    StreamReader srTmp = new StreamReader(fsTmp);
+                    FileStream fsTmp = new (OutputPath + "ImgDictionary.txt", FileMode.Open);
+                    StreamReader srTmp = new (fsTmp);
                     while (!srTmp.EndOfStream)
                     {
                         var strTmpLine = srTmp.ReadLine();
@@ -94,9 +98,9 @@ namespace QQChatRecordArchiveConverter.CARC.Util
                         {
                             continue;
                         }
-                        var strTmpId = strTmpLine.Substring(0, 36);
-                        var strTmpSuffix = strTmpLine.Substring(37);
-                        if (!ImgDictionary.ContainsKey(strTmpId)) ImgDictionary.Add(strTmpId, strTmpSuffix);
+                        var strTmpId = strTmpLine[..36];
+                        var strTmpTrueName = strTmpLine[37..];
+                        if (!ImgDictionary.ContainsKey(strTmpId)) ImgDictionary.Add(strTmpId, strTmpTrueName); 
                     }
                     srTmp.Close();
                     fsTmp.Close();
@@ -117,7 +121,20 @@ namespace QQChatRecordArchiveConverter.CARC.Util
                         {
                             strChatName = Regex.Match(strLine, "<tr><td><div.*?>消息对象:(?<objName>.*?)</div>").Groups["objName"].Value;
                             var inf =  SQLUtil.Instance.DB.Table<DBRecord>().First();
-                            if (inf.DisplayName == null) inf.DisplayName = strChatName;
+                            inf.DisplayName ??= strChatName;
+                            if (!string.IsNullOrEmpty(inf.DisplayName) && inf.DisplayName != strChatName) 
+                            {
+                                Execute.OnUIThreadSync(() =>
+                                {
+                                    var conflict = MessageBox.Show($"需要导入的记录消息对象与数据库不一致，是否继续？\n导入：'{strChatName}'；当前数据库：'{inf.DisplayName}'", "名称冲突", MessageBoxButton.YesNo);
+                                    if (conflict != MessageBoxResult.Yes)
+                                    {
+                                        IsStop = true;
+                                        return;
+                                    }
+                                });
+                            }
+                            if (IsStop) return;
                             SQLUtil.Instance.DB.Update(inf);
                         }
                         if (Regex.IsMatch(strLine, "<tr><td.*?>日期:")){
@@ -126,38 +143,40 @@ namespace QQChatRecordArchiveConverter.CARC.Util
                         }
                         if (strLine.Contains("}.dat"))
                         {
-                            var strImgId = strLine.Substring(strLine.IndexOf('{') + 1, 36);
-                            if (blDicExist && ImgDictionary.ContainsKey(strImgId))
+                            var strImgs = Regex.Matches(strLine, "<IMG src=\"{(?<Img>.*?)}.dat\">");
+                            foreach (Match m in strImgs)
                             {
-                                strLine = strLine.Replace("}.dat", "." + ImgDictionary[strImgId]);
+                                var strImgLabel = m.Groups[0].Value;
+                                var strImgId = m.Groups["Img"].Value;
+                                if (blDicExist && ImgDictionary.ContainsKey(strImgId))
+                                {
+                                    strImgId = ImgDirName + "/" + ImgDictionary[strImgId];
+                                }
+                                else
+                                {
+                                    strImgId = ImgDirName + "/" + strImgId + ".jpg";
+                                }
+                                strLine = strLine.Replace(strImgLabel, $"<img src=\"{strImgId}\"/>");
                             }
-                            else
-                            {
-                                strLine = strLine.Replace("}.dat", ".jpg");
-                            }
-                            strLine = strLine.Replace("src=\"{", "src=\"" + ImgDirName + "/");
                         }
                         try
                         {
                             //parse
                             //<tr><td><div><div>{uid}</div>{time}</div><div><font>{content}</font></div></td></tr>
-                            var Matches = Regex.Matches(strLine, @"<tr><td><div.*?><div style=float:left;margin-right:6px;>(?<uid>.*?)</div>(?<time>\d{1,2}:\d{2}:\d{2})</div><div.*?>(?<content>.*?)</div></td></tr>");
+                            var Matches = Regex.Matches(strLine, @"<tr><td><div.*?><div style=float:left;margin-right:6px;>(?<uid>.*?)</div>(?<time>([上下]午)?\d{1,2}:\d{2}:\d{2})</div><div.*?>(?<content>.*?)</div></td></tr>");
                             foreach (Match m in Matches)
                             {
-
                                 var strSender = WebUtility.HtmlDecode(m.Groups["uid"].Value.Replace("&get;", "&gt;"));
                                 var strTime = m.Groups["time"].Value;
                                 var strContentRaw = WebUtility.HtmlDecode(m.Groups["content"].Value);
-                                var contentParse = Regex.Matches(strContentRaw, "<font.*?>(?<span>.*?)</font>|(?<span><IMG src=.*?>)");
+                                var contentParse = Regex.Matches(strContentRaw, "<font.*?>(?<span>.*?)</font>|(?<span><img src=.*?>)");
                                 string strContent = "";
                                 foreach (Match span in contentParse)
                                 {
                                     strContent += span.Groups["span"].Value.Replace("<br>", "\r\n");
                                 } 
-                                var sendTime = CurDate.Add(TimeSpan.Parse(strTime)); 
-                                var senderType = strSender == "系统消息(10000)" ? MessageSenderType.System : MessageSenderType.Normal;
-                                var messageType = strContent.Contains("<IMG src=") ? MessageType.Complex : MessageType.Text;
-                                SQLUtil.Instance.DB.Insert(new Message(strContent, strSender, sendTime, senderType, messageType, strContentRaw));
+                                var sendTime = CurDate.Add(DateTime.Parse(strTime).TimeOfDay); 
+                                SQLUtil.Instance.DB.Insert(new Message(strContent, strSender, sendTime, strContentRaw, strChatName, "Res\\otulogo@2x1231.png"));
                             }
                         }
                         catch (Exception exception)
@@ -182,6 +201,7 @@ namespace QQChatRecordArchiveConverter.CARC.Util
                         try
                         {
                             StatusChanged.Invoke(new ProcessStatus { percent = sameList.Count, desc = "totalsame" });
+                            File.WriteAllLines(OutputPath + $"DataConflictList-{DateTime.Now:yyyy-MM-dd-HH-mm-ss-fff}.txt", sameList);
                         }
                         catch (Exception exception)
                         {
@@ -194,6 +214,7 @@ namespace QQChatRecordArchiveConverter.CARC.Util
                     if (IsStop)
                     {
                         StatusChanged.Invoke(new ProcessStatus { percent = sameList.Count, desc = "totalsame" });
+                        File.WriteAllLines(OutputPath + $"DataConflictList-{DateTime.Now:yyyy-MM-dd-HH-mm-ss-fff}.txt", sameList);
                         break; 
                     }
                 }
@@ -213,10 +234,36 @@ namespace QQChatRecordArchiveConverter.CARC.Util
                             blEnd = true;
                             var strContent = sbSrc.ToString();
                             sbSrc.Remove(0, sbSrc.Length);
+                            //MD5去重
+                            byte[] byteContent = Convert.FromBase64String(strContent);
+                            StringBuilder sb = new();
+                            using (var sha = HashAlgorithm.Create("SHA1")) 
+                            {
+                                var byteHashResult = sha.ComputeHash(byteContent);
+                                for (int i = 0; i < byteHashResult.Length; i++)
+                                {
+                                    sb.Append(byteHashResult[i].ToString("x2"));
+                                }
+                            }
+                            //后缀名修正
+                            try
+                            {
+                                if (byteContent[0] == 0xFF && byteContent[1] == 0xD8) strSuffix = "jpg";
+                                if (byteContent[0] == 0x89 && byteContent[1] == 0x50 && byteContent[2] == 0x4E && byteContent[3] == 0x47) strSuffix = "png";
+                                if ((byteContent[0] == 0x49 && byteContent[1] == 0x49) || (byteContent[0] == 0x4D && byteContent[1] == 0x4D)) strSuffix = "tif";
+                                if (byteContent[0] == 0x47 && byteContent[1] == 0x49 && byteContent[2] == 0x46) strSuffix = "gif"; 
+                                if (byteContent[0] == 0x4D && byteContent[1] == 0x42) strSuffix = "bmp"; 
+                                if (byteContent[0] == 0x52 && byteContent[1] == 0x49 && byteContent[8] == 0x57 && byteContent[11] == 0x50) strSuffix = "webp";
+                            }
+                            catch (Exception)
+                            {
+
+                            }
                             //保存成图片文件
-                            WriteToImage(strImgFileName, strContent, strSuffix, OutputPath, ImgDirName);
+                            var trueName = sb.ToString();
+                            WriteToImage(sb.ToString(), byteContent, strSuffix, OutputPath, ImgDirName); ;
                             //写入到字典文件,用户读取正文时生成链接
-                            swDic.WriteLine(strImgFileName + "," + strSuffix);
+                            swDic.WriteLine(strImgFileName + "," + trueName + "." + strSuffix);
                             if (IsStop) break;
                         }
                     }
@@ -259,14 +306,14 @@ namespace QQChatRecordArchiveConverter.CARC.Util
             else
             {
                 //StatusChanged.Invoke(new ProcessStatus { isException = false, percent = 100, desc = "完成" }); 
+                //MessageBox.Show("完成");
             }
         }
 
         //保存每个图片到对应的文件
-        private static void WriteToImage(string strFileName, string strContent, string strSuffix, string outputPath, string imgDirName)
+        private static void WriteToImage(string strFileName, byte[] byteContent, string strSuffix, string outputPath, string imgDirName)
         {
             if (File.Exists(outputPath + imgDirName + "/" + strFileName + "." + strSuffix)) return;
-            byte[] byteContent = Convert.FromBase64String(strContent);
             FileStream fs = new FileStream(outputPath + imgDirName + "/" + strFileName + "." + strSuffix, FileMode.Create);
             fs.Write(byteContent, 0, byteContent.Length);
             fs.Close();

@@ -17,8 +17,7 @@
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
             </s:ApplicationLoader.MergedDictionaries>
             <System:Double x:Key="GlobalNormalFontSize">14</System:Double>
-            <FontFamily x:Key="HYRY">/Res/Font/HYRunYuan-75w.ttf#汉仪润圆-75W</FontFamily>
-            <FontFamily x:Key="HYWH">pack://application:,,,;/res/font/汉仪文黑-85w.ttf#汉仪文黑-85W</FontFamily>
+            <FontFamily x:Key="HYRY">Res/Font/#HYRunYuan 75W</FontFamily>
         </s:ApplicationLoader>
     </Application.Resources>
 </Application>

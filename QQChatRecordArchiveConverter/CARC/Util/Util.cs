@@ -12,18 +12,25 @@ namespace QQChatRecordArchiveConverter.CARC.Util
         public static long GetDirectorySize(string path)
         {
             long size = 0;
-            DirectoryInfo dir = new DirectoryInfo(path);
-
-            foreach (FileInfo file in dir.GetFiles())
+            try
             {
-                size += file.Length;
-            }
+                DirectoryInfo dir = new DirectoryInfo(path);
 
-            foreach (DirectoryInfo subDir in dir.GetDirectories())
+                foreach (FileInfo file in dir.GetFiles())
+                {
+                    size += file.Length;
+                }
+
+                foreach (DirectoryInfo subDir in dir.GetDirectories())
+                {
+                    size += GetDirectorySize(subDir.FullName);
+                }
+
+            }
+            catch
             {
-                size += GetDirectorySize(subDir.FullName);
+                return 0;
             }
-
             return size;
         }
         public static string SizeParse(long size)

@@ -12,6 +12,7 @@
   <ItemGroup>
     <None Remove="Res\Font\HYRunYuan-75W.ttf" />
     <None Remove="Res\logo_nav.png" />
+    <None Remove="Res\otulogo%40100p.png" />
     <None Remove="Res\otulogo%402x1231.png" />
   </ItemGroup>
 
@@ -29,6 +30,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Res\Logo_nav.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Res\otulogo@100p.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Res\otulogo@2x1231.png">
