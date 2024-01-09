@@ -14,7 +14,7 @@
         x:Class="QQChatRecordArchiveConverter.Pages.MainView"
         d:Background="{DynamicResource ApplicationBackgroundBrush}"
         Title="QQCRAC" Height="680" Width="1100" WindowStartupLocation="CenterScreen"
-        
+        Closing="{s:Action Close}"
         MinHeight="600" MinWidth="800" FontSize="14" TextOptions.TextRenderingMode="Grayscale" TextOptions.TextHintingMode="Animated" TextOptions.TextFormattingMode="Ideal" FontFamily="{DynamicResource HYRY}">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -75,18 +75,40 @@
                     </hc:SimpleStackPanel>
                 </ToggleButton>
                 <hc:Divider Margin="10,10,10,10" />
-                <Button Margin="10,10" HorizontalAlignment="Stretch" Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15" Click="{s:Action Import}">
-                    <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="AddSquareMultiple16" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
-                        <TextBlock Text="导入" FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
-                    </hc:SimpleStackPanel>
-                </Button>
-                <Button Margin="10,10" HorizontalAlignment="Stretch" Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15" Click="{s:Action Export}">
-                    <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="SaveArrowRight20" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
-                        <TextBlock Text="将结果导出为HTML"  FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
-                    </hc:SimpleStackPanel>
-                </Button>
+                <hc:SimpleStackPanel Margin="10,7" Orientation="Horizontal">
+                    <Button Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15" Click="{s:Action Import}" Margin="0,0,10,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="AddSquareMultiple16" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
+                            <TextBlock Text="导入" FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </hc:SimpleStackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15" Click="{s:Action Export}" Margin="0,0,10,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="SaveArrowRight20" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
+                            <TextBlock Text="导出"  FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </hc:SimpleStackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15" Click="{s:Action Backup}">
+                        <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="Archive20" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
+                            <TextBlock Text="备份"  FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </hc:SimpleStackPanel>
+                    </Button>
+                </hc:SimpleStackPanel>
+                <hc:SimpleStackPanel Margin="10,7" Orientation="Horizontal">
+                    <Button HorizontalAlignment="Stretch" Style="{StaticResource ButtonDefault}" Margin="0,0,10,0" hc:BorderElement.CornerRadius="15" Click="{s:Action DuplicateFix}">
+                        <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="DatabaseWarning20" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
+                            <TextBlock Text="Fix"  FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </hc:SimpleStackPanel>
+                    </Button>
+                    <Button HorizontalAlignment="Stretch" Style="{StaticResource ButtonDefault}" hc:BorderElement.CornerRadius="15" Click="{s:Action Vacuum}">
+                        <hc:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="DatabaseLightning20" Filled="True" FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Height="18"/>
+                            <TextBlock Text="Vacuum"  FontSize="{DynamicResource GlobalNormalFontSize}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </hc:SimpleStackPanel>
+                    </Button>
+                </hc:SimpleStackPanel>
             </hc:SimpleStackPanel>
             <Border Grid.Row="1" Margin="10" VerticalAlignment="Bottom" CornerRadius="5" Background="#FFEAE2C1" Visibility="{Binding LoadingBoxView}">
                 <hc:SimpleStackPanel Margin="5" Orientation="Horizontal">
@@ -188,6 +210,8 @@
             </ListBox>
         </Grid>
 
-
+        <Border>
+            
+        </Border>
     </Grid>
 </Window>

@@ -1,11 +1,7 @@
 ﻿using QQChatRecordArchiveConverter.CARC.Module;
 using SQLite;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace QQChatRecordArchiveConverter.CARC.Util
 {
@@ -35,6 +31,11 @@ namespace QQChatRecordArchiveConverter.CARC.Util
             {
                 _db.Insert(new DBRecord());
             }
+        }
+        public void NewVersion()
+        {
+            var dbs = new SQLiteConnection(sqlPath + "MainDB.db");
+            _db.InsertAll(dbs.Table<Message>().ToArray());
         }
     }
 }

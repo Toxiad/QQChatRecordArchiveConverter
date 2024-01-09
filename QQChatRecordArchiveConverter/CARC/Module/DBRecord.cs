@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SQLite;
+using System;
 using System.Windows;
 using System.Windows.Resources;
-using SQLite;
-using SQLitePCL;
 
 namespace QQChatRecordArchiveConverter.CARC.Module
 {

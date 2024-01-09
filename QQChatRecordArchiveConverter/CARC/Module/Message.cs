@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using SQLite;
+using System;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using SQLite;
-using SQLitePCL;
-using Windows.Devices.Sensors;
-using Windows.Media.Ocr;
 
 namespace QQChatRecordArchiveConverter.CARC.Module
 {
@@ -26,10 +19,10 @@ namespace QQChatRecordArchiveConverter.CARC.Module
     public class Message
     {
         public Message() { }
-        public Message(string content, string sender, DateTime sendTime, string origin, string group, string avatar) 
+        public Message(string content, string sender, DateTime sendTime, string origin, string group) 
         {
             var idMatch = Regex.Match(sender, "(\\((?<id>\\d+)\\)|<(?<id>.*?)>)$");
-            Content = content;
+            Content = content; //Display Content
             SendTime = sendTime;
             OriginMessage = origin;
             SendTimeMinute = new DateTime(sendTime.Year, sendTime.Month, sendTime.Day, sendTime.Hour, sendTime.Minute, 0);
@@ -46,22 +39,20 @@ namespace QQChatRecordArchiveConverter.CARC.Module
             SenderStr = sender;
             SenderName = sender.Replace(idMatch.Groups[0].Value, "");
             SenderId = idMatch.Groups["id"].Value;
-            SenderAvatar = avatar;
             SenderType = sender.Contains("系统消息(10000") ? MessageSenderType.System : MessageSenderType.Normal;
         }
         public MessageType MessageType { get; set; }
+        [Indexed(Name = "CompositeKey", Order = 3, Unique = true)]
         public string Content { get; set; }
         public string Group { get; set; }
         public DateTime SendTime { get; set; } = DateTime.Now;
-        [Indexed(Name = "CompositeKey", Order = 1, Unique = true)]
         public string OriginMessage { get; set; }
         [Indexed(Name = "CompositeKey", Order = 2, Unique = true)]
         public string SenderId { get; set; }
-        [Indexed(Name = "CompositeKey", Order = 3, Unique = true)]
+        [Indexed(Name = "CompositeKey", Order = 1, Unique = true)]
         public DateTime SendTimeMinute { get; set; } = DateTime.Now;
         public MessageSenderType SenderType { get; set; }
         public string SenderName { get; set; }
         public string SenderStr { get; set; }
-        public string SenderAvatar { get; set; }
     }
 }
